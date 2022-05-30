@@ -138,7 +138,7 @@ check `ssm_parameter_config.md`
 ```sh
 module "vsrx_aws" {
   # Need to provide proper source here with relative path etc ... #TBD# 
-  source = "github_path"
+  source = "github.com/qmar1/tf_aws_juniper_vsrx"
 
   #------------------REQUIRED VALUES--------------------------------------
   # Modify these values according to your requirements 
@@ -189,6 +189,83 @@ terraform {
 provider "aws" {
   region  = "us-east-1"
   profile = "<aws_cli_profile_name>"
+}
+```
+**Optional TF module files**
+
+`variables.tf`
+```sh
+locals {
+  jmp_host_attributes_tocollect = ["private_ip", "public_ip", "availability_zone", "vpc_security_group_ids"]
+  vsrxgw_names                  = keys(module.vsrx_aws.vsrx_info)
+  vsrx_values = flatten([
+    for index, az in module.vsrx_aws.azs_used : {
+      fxp0_pvt_ip     = module.vsrx_aws.vsrx_info[local.vsrxgw_names[index]]["private_ip"]
+      fxp0_pub_ip     = module.vsrx_aws.vsrx_eip["${az}-management"]["public_ip"]
+      internet_pvt_ip = module.vsrx_aws.vsrx_eni["${az}-internet-eni"]["private_ip"]
+      internet_pub_ip = module.vsrx_aws.vsrx_eip["${az}-internet"]["public_ip"]
+      lan_pvt_ip      = module.vsrx_aws.vsrx_eni["${az}-lan-eni"]["private_ip"]
+    }
+  ])
+
+  vsrx_info = zipmap(local.vsrxgw_names, local.vsrx_values)
+
+}
+```
+`outputs.tf`
+```sh
+output "vsrx_instance_ids" {
+  value = { for index, vsrx in module.vsrx_aws.vsrx_info : vsrx.tags.Name => vsrx.id }
+}
+
+output "vsrx_info" {
+  value = local.vsrx_info
+}
+
+output "jump_host_info" {
+  value = { for attr in local.jmp_host_attributes_tocollect : attr => module.vsrx_aws.jump_host_info[attr] }
+}
+
+output "test_instance_pvt_ip" {
+  value = { for instance in module.vsrx_aws.test_instance_info : instance.tags.Name => instance.private_ip }
+}
+```
+
+**Sample Output**
+```sh
+Outputs:
+
+jump_host_info = {
+  "availability_zone" = "us-east-1a"
+  "private_ip" = "192.168.0.31"
+  "public_ip" = "3.85.76.204"
+  "vpc_security_group_ids" = toset([
+    "sg-0772aad70b5414cd2",
+  ])
+}
+test_instance_pvt_ip = {
+  "inst-qmar-onpremsim-vpc-us-east-1a-1" = "192.168.2.193"
+  "inst-qmar-onpremsim-vpc-us-east-1b-1" = "192.168.5.88"
+}
+vsrx_info = {
+  "vsrxgw-us-east-1a-qmar-onpremsim-vpc" = {
+    "fxp0_pub_ip" = "44.194.73.159"
+    "fxp0_pvt_ip" = "192.168.0.32"
+    "internet_pub_ip" = "44.205.136.188"
+    "internet_pvt_ip" = "192.168.1.36"
+    "lan_pvt_ip" = "192.168.2.9"
+  }
+  "vsrxgw-us-east-1b-qmar-onpremsim-vpc" = {
+    "fxp0_pub_ip" = "54.164.99.115"
+    "fxp0_pvt_ip" = "192.168.3.69"
+    "internet_pub_ip" = "3.209.42.200"
+    "internet_pvt_ip" = "192.168.4.217"
+    "lan_pvt_ip" = "192.168.5.45"
+  }
+}
+vsrx_instance_ids = {
+  "vsrxgw-us-east-1a-qmar-onpremsim-vpc" = "i-01b47500566da989a"
+  "vsrxgw-us-east-1b-qmar-onpremsim-vpc" = "i-07279d26c02a896dc"
 }
 ```
 

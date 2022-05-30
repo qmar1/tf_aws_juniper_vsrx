@@ -4,7 +4,7 @@
 **change profile to your profile and region to the region you want**
 
 ```sh
-$ aws ec2 describe-images --owners 679593333241 --filters "Name=name,Values=junos-vsrx3-x86-64-20.3R*-consec*"  --region us-east-1 --profile kumar | jq '.Images[].Description,.Images[].ImageId'
+$ aws ec2 describe-images --owners 679593333241 --filters "Name=name,Values=junos-vsrx3-x86-64-20.3R*-consec*"  --region us-east-1 --profile <aws_cli_profile_name> | jq '.Images[].Description,.Images[].ImageId'
 "junos-vsrx3-x86-64-20.3R2.9-consec4--prod"
 "ami-095486325dc03c306"
 ```
@@ -18,11 +18,11 @@ aws ssm put-parameter \
     --type String \
     --data-type "aws:ec2:image" \
     --region us-east-1 \
-    --profile kumar
+    --profile <aws_cli_profile>
 ```
 **Verifying ssm parameter store**
 ```sh
-$ aws ssm get-parameters --names vsrx-usw1-20.3R2.9 --profile kumar --region us-west-1
+$ aws ssm get-parameters --names vsrx-usw1-20.3R2.9 --profile <aws_cli_profile> --region us-west-1
 {
     "Parameters": [
         {

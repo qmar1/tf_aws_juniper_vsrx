@@ -1,25 +1,3 @@
-/* 
-Description: This module will deploy vSRX in an AWS region. 
-Depending on the value of no_of_secgw_in_azs it will deploy number of vSRX. If no_of_secgw_in_azs is 2, it will deploy 2 
-vSRX in each AZ. 
-For each vSRX it will deploy 3 subnets - management, internet & lan, 2 ENI and 2 EIP for each AZ. It will also create the VPC for you. 
-1 ENI will be in the internet subnet and one in the LAN subnet. They both will be attached to the vSRX.
-The EIP will be assigned to vSRX and the internet facing ENI. LAN  ENI will be private only. 
-Internet and the management subnets are public subnets while LAN subnets are private subnet. 
-For each of the subnet, it will create 3 Route tables and associate those RTBs with the respective subnets. 
-It will also create all the necessary security groups. 3 in each VPC. One for management ENI/vSRX instance, one for Internet ENI and one for the LAN ENI. 
-It will also deploy a jump hos with an public IP in the management (public) subnet. You can use this as a jump host to ssh into the test instances.
-It will also deploy a test instance in each LAN subnet. So if you have 2 vsrx and 2 lan subnets, there will be 2 test instances. Test instance will be in private subnet. 
-The lan subnet routing table has a default route pointing to the LAN eni of vSRX
-
-Default Logins:
-vSRX: 
-  - uname: ec2-user
-  - key: private key of key_name you pass to the module
-jump_host,test_instances:
-  - uname: ubuntu
-  - key: private key of key_name you pass to the module
-*/
 
 resource "aws_vpc" "onprem_sim_vpc" {
 

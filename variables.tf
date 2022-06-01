@@ -162,7 +162,7 @@ locals {
 
   eip_vsrx_ass = flatten([
     for index, az in local.azs : {
-      inst_id         = aws_instance.vsrxs["vsrxgw-${az}-${vpc_name_w_prefix}"].id
+      inst_id         = aws_instance.vsrxs["vsrxgw-${az}-${local.vpc_name_w_prefix}"].id
       eip_id          = aws_eip.vsrx_eip["${az}-management"].id
       eip_id_internet = aws_eip.vsrx_eip["${az}-internet"].id
       eni_id_internet = aws_network_interface.enis_for_vsrx["${az}-internet-eni"].id
@@ -173,7 +173,7 @@ locals {
   eni_vsrx_ass = flatten([
     for index, az in local.azs : [
       for dev_idx, subnet in slice(local.subnet_names, 1, 3) : {
-        inst_id   = aws_instance.vsrxs["vsrxgw-${az}-${vpc_name_w_prefix}"].id
+        inst_id   = aws_instance.vsrxs["vsrxgw-${az}-${local.vpc_name_w_prefix}"].id
         eni_id    = aws_network_interface.enis_for_vsrx["${az}-${subnet}-eni"].id
         dev_index = dev_idx + 1
 
@@ -192,5 +192,6 @@ locals {
     ]
   ])
 
-
 } 
+
+# Forcing another git push

@@ -77,7 +77,7 @@ variable "num_of_test_instances_per_lansubnet" {
 
 
 locals {
-  subnet_bits                  = 8
+  subnet_bits                  = 4
   created_by_w_prefix          = "${var.prefix}-tf"
   vpc_name_w_prefix            = "${var.prefix}-${var.vpc_name}"
   subnet_names                 = ["management", "internet", "lan"]

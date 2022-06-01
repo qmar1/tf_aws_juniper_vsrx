@@ -141,8 +141,8 @@ locals {
     for az in local.azs : [
       for subnet in slice(local.subnet_names, 1, 3) : {
         name         = "${az}-${subnet}-eni"
-        subnet_id    = aws_subnet.onprem_sim_subnet["${vpc_name_w_prefix}.${az}.${subnet}"].id
-        sec_group_id = aws_subnet.onprem_sim_subnet["${vpc_name_w_prefix}.${az}.${subnet}"].tags.Name == "internet" ? aws_security_group.my-sg["Internet_public_SecGroup"].id : aws_security_group.my-sg["Lan_private_SecGroup"].id
+        subnet_id    = aws_subnet.onprem_sim_subnet["${local.vpc_name_w_prefix}.${az}.${subnet}"].id
+        sec_group_id = aws_subnet.onprem_sim_subnet["${local.vpc_name_w_prefix}.${az}.${subnet}"].tags.Name == "internet" ? aws_security_group.my-sg["Internet_public_SecGroup"].id : aws_security_group.my-sg["Lan_private_SecGroup"].id
       }
     ]
   ])
@@ -151,7 +151,7 @@ locals {
     for index, az in local.azs : [
       for subnet in slice(local.subnet_names, 0, 1) : {
         name        = "vsrxgw-${az}-${local.vpc_name_w_prefix}"
-        subnet_id   = aws_subnet.onprem_sim_subnet["${vpc_name_w_prefix}.${az}.${subnet}"].id
+        subnet_id   = aws_subnet.onprem_sim_subnet["${local.vpc_name_w_prefix}.${az}.${subnet}"].id
         wan_intf_id = aws_network_interface.enis_for_vsrx["${az}-internet-eni"].id
         lan_intf_id = aws_network_interface.enis_for_vsrx["${az}-lan-eni"].id
         az_index    = index
@@ -162,7 +162,7 @@ locals {
 
   eip_vsrx_ass = flatten([
     for index, az in local.azs : {
-      inst_id         = aws_instance.vsrxs["vsrxgw-${az}-qmar-onpremsim-vpc"].id
+      inst_id         = aws_instance.vsrxs["vsrxgw-${az}-${vpc_name_w_prefix}"].id
       eip_id          = aws_eip.vsrx_eip["${az}-management"].id
       eip_id_internet = aws_eip.vsrx_eip["${az}-internet"].id
       eni_id_internet = aws_network_interface.enis_for_vsrx["${az}-internet-eni"].id
@@ -173,7 +173,7 @@ locals {
   eni_vsrx_ass = flatten([
     for index, az in local.azs : [
       for dev_idx, subnet in slice(local.subnet_names, 1, 3) : {
-        inst_id   = aws_instance.vsrxs["vsrxgw-${az}-qmar-onpremsim-vpc"].id
+        inst_id   = aws_instance.vsrxs["vsrxgw-${az}-${vpc_name_w_prefix}"].id
         eni_id    = aws_network_interface.enis_for_vsrx["${az}-${subnet}-eni"].id
         dev_index = dev_idx + 1
 

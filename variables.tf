@@ -141,8 +141,8 @@ locals {
     for az in local.azs : [
       for subnet in slice(local.subnet_names, 1, 3) : {
         name         = "${az}-${subnet}-eni"
-        subnet_id    = aws_subnet.onprem_sim_subnet["qmar-onpremsim-vpc.${az}.${subnet}"].id
-        sec_group_id = aws_subnet.onprem_sim_subnet["qmar-onpremsim-vpc.${az}.${subnet}"].tags.Name == "internet" ? aws_security_group.my-sg["Internet_public_SecGroup"].id : aws_security_group.my-sg["Lan_private_SecGroup"].id
+        subnet_id    = aws_subnet.onprem_sim_subnet["${var.vpc_name}.${az}.${subnet}"].id
+        sec_group_id = aws_subnet.onprem_sim_subnet["${var.vpc_name}.${az}.${subnet}"].tags.Name == "internet" ? aws_security_group.my-sg["Internet_public_SecGroup"].id : aws_security_group.my-sg["Lan_private_SecGroup"].id
       }
     ]
   ])
